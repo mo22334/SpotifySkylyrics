@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "lyricsmod",
+  "version": "${version}",
+  "name": "Spotify Lyrics",
+  "description": "Näyttää Spotify-sanoitukset taivaalla tai edessäsi.",
+  "authors": ["you"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["fi.lyricsmod.LyricsMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
