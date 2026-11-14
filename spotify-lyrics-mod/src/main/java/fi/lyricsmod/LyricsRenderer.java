@@ -1,14 +1,12 @@
 package fi.lyricsmod;
 
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -51,7 +49,7 @@ public final class LyricsRenderer {
     private static Text styled(String[] words, int n) {
         MutableText out = Text.empty();
         double t = (System.currentTimeMillis() % 1_000_000L) / 1000.0;
-        Identifier font = Fonts.current();
+        StyleSpriteSource font = new StyleSpriteSource.Font(Fonts.current());
         int ci = 0;
         for (int w = 0; w < n; w++) {
             String word = words[w] + (w < n - 1 ? " " : "");
@@ -79,52 +77,41 @@ public final class LyricsRenderer {
         return new Text[]{styled(words, words.length), styled(words, shown)};
     }
 
-    // ------------------------------------------------------------ HUD (edessä)
+    // ------------------------------------------------------------ HUD (edessä / taivaalla)
 
-    public static void hud(DrawContext ctx, float tickDelta) {
+    public static void hud(DrawContext ctx, RenderTickCounter tickCounter) {
         MinecraftClient mc = MinecraftClient.getInstance();
         LyricsConfig c = LyricsConfig.I;
-        if (c.sky || mc.options.hudHidden || mc.player == null) return;
-        Cur cur = current();
-        if (cur == null) return;
-        Text[] t = build(cur);
-        TextRenderer tr = mc.textRenderer;
-        int fullW = tr.getWidth(t[0]);
-        float s = 1.6f * c.scale;
-
-        ctx.getMatrices().push();
-        ctx.getMatrices().translate(ctx.getScaledWindowWidth() / 2f, ctx.getScaledWindowHeight() / 2f + 40, 0);
-        ctx.getMatrices().scale(s, s, 1f);
-        ctx.drawText(tr, t[1], -fullW / 2, 0, 0xFFFFFFFF, true);
-        ctx.getMatrices().pop();
-    }
-
-    // ------------------------------------------------------------ taivas
-
-    public static void sky(WorldRenderContext ctx) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        LyricsConfig c = LyricsConfig.I;
-        if (!c.sky || mc.player == null) return;
+        if (mc.options.hudHidden || mc.player == null) return;
         Cur cur = current();
         if (cur == null) return;
         Text[] t = build(cur);
         TextRenderer tr = mc.textRenderer;
         int fullW = tr.getWidth(t[0]);
 
-        Camera cam = ctx.camera();
-        MatrixStack m = ctx.matrixStack();
-        double yaw = Math.toRadians(cam.getYaw());
-        double dist = 50;
-        m.push();
-        m.translate(-Math.sin(yaw) * dist, 24, Math.cos(yaw) * dist); // kameran suhteen: eteen ja korkealle
-        m.multiply(cam.getRotation());                                 // billboard
-        float s = 0.25f * c.scale;
-        m.scale(-s, -s, s);
+        float w = ctx.getScaledWindowWidth();
+        float h = ctx.getScaledWindowHeight();
+        float cy;
+        float s;
+        if (c.sky) {
+            // "Taivas": teksti on kiinnitetty 30 asteen korkeuteen horisontin yläpuolelle,
+            // joten se liukuu ruudulla kun katsot ylös/alas.
+            double fov = mc.options.getFov().getValue();
+            float focal = (h / 2f) / (float) Math.tan(Math.toRadians(fov / 2.0));
+            double ang = Math.max(-80, Math.min(80, 30 + mc.player.getPitch()));
+            cy = h / 2f - (float) Math.tan(Math.toRadians(ang)) * focal;
+            if (cy < -30 || cy > h + 30) return;
+            s = 1.3f * c.scale;
+        } else {
+            cy = h / 2f + 40;
+            s = 1.6f * c.scale;
+        }
 
-        VertexConsumerProvider.Immediate vc = mc.getBufferBuilders().getEntityVertexConsumers();
-        tr.draw(t[1], -fullW / 2f, 0, 0xFFFFFFFF, true, m.peek().getPositionMatrix(), vc,
-                TextRenderer.TextLayerType.NORMAL, 0, 0xF000F0);
-        vc.draw();
-        m.pop();
+        var m = ctx.getMatrices();
+        m.pushMatrix();
+        m.translate(w / 2f, cy);
+        m.scale(s, s);
+        ctx.drawText(tr, t[1], -fullW / 2, -4, 0xFFFFFFFF, true);
+        m.popMatrix();
     }
 }

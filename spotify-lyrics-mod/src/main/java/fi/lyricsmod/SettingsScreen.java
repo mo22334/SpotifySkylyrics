@@ -131,15 +131,14 @@ public class SettingsScreen extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mx, int my, float delta) {
-        renderBackground(ctx);
-        ctx.drawCenteredTextWithShadow(textRenderer, title, width / 2, 8, 0xFFFFFF);
-        ctx.drawTextWithShadow(textRenderer, "Spotify Client ID:", rightX, clientLabelY, 0xAAAAAA);
         super.render(ctx, mx, my, delta);
+        ctx.drawCenteredTextWithShadow(textRenderer, title, width / 2, 8, 0xFFFFFFFF);
+        ctx.drawTextWithShadow(textRenderer, "Spotify Client ID:", rightX, clientLabelY, 0xFFAAAAAA);
         String now = Spotify.hasTrack() ? Spotify.artist + " – " + Spotify.title : "–";
         ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(Spotify.status + "  |  " + now),
-                width / 2, height - 12, 0xAAAAAA);
+                width / 2, height - 12, 0xFFAAAAAA);
         if (!Lyrics.state.isEmpty()) {
-            ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(Lyrics.state), width / 2, height - 24, 0xFFAA55);
+            ctx.drawCenteredTextWithShadow(textRenderer, Text.literal(Lyrics.state), width / 2, height - 24, 0xFFFFAA55);
         }
     }
 

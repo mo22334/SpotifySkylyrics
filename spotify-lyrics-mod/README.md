@@ -1,13 +1,15 @@
-# Spotify Lyrics (Fabric, Minecraft 1.20.1)
+# Spotify Lyrics (Fabric, Minecraft 1.21.11, toimii Lunar Clientissa)
 
 Näyttää Spotifyssa soivan kappaleen aikaleimatut sanoitukset (LRCLIB) joko **taivaalla** tai **suoraan edessäsi**.
 
-## Rakennus
-1. Asenna JDK 17.
-2. `python download_fonts.py`  (lataa 27 fonttia; ilman tätä käytössä on 4 sisäänrakennettua)
-3. `gradle wrapper --gradle-version 8.7` (kerran), sitten `./gradlew build`
-4. Jar: `build/libs/spotify-lyrics-1.0.0.jar` → `.minecraft/mods/`
-   Tarvitset Fabric Loaderin (0.15+) ja Fabric API:n 1.20.1:lle.
+## Rakennus (GitHub Actions)
+Lataa projekti GitHub-repoon. Actions-välilehti rakentaa jarin (Java 21, Gradle 9.2.1) ja lataa fontit.
+Valmis jar löytyy rakennuksen sivun Artifacts-kohdasta.
+
+## Lunar Client
+1. Lunar-launcheriin: valitse versioksi 1.21.11 ja Fabric-profiili.
+2. Profiilin rataskuvake → Mods → lisää tämä jar.
+3. Fabric API tulee Lunarin mukana (ei tarvitse lisätä erikseen).
 
 ## Spotify-yhteys (kerran)
 1. https://developer.spotify.com/dashboard → Create app
@@ -18,9 +20,3 @@ Näyttää Spotifyssa soivan kappaleen aikaleimatut sanoitukset (LRCLIB) joko **
 ## Käyttö
 - Ensimmäisellä käynnistyksellä peli kysyy pikanäppäimen.
 - Asetuksissa: sijainti (taivas/edessä), fontti, väri (RGB + hex), koko, joulutila, välkkyvät valot, sana kerrallaan, ajoituksen viive.
-- Jos sanat ovat liian aikaisin/myöhään, säädä viivettä (+/- 250 ms).
-
-## Ilman asennuksia: GitHub rakentaa jarin
-1. Tee ilmainen GitHub-tili, luo uusi repo ja lataa tämän zipin sisältö sinne (Add file → Upload files; ota .github-kansio mukaan).
-2. Avaa repon Actions-välilehti → "Build mod" → odota ~3 min.
-3. Lataa valmis jar kohdasta Artifacts.

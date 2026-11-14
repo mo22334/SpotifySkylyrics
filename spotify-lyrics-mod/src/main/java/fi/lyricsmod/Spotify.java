@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Util;
 
 import java.io.*;
 import java.net.*;
@@ -152,7 +151,7 @@ public final class Spotify {
             ss.setSoTimeout(180_000);
             MinecraftClient mc = MinecraftClient.getInstance();
             mc.execute(() -> mc.keyboard.setClipboard(url)); // varalta: linkki leikepöydälle
-            Util.getOperatingSystem().open(URI.create(url));
+            openBrowser(url);
 
             long deadline = System.currentTimeMillis() + 180_000;
             while (code == null && System.currentTimeMillis() < deadline) {
@@ -223,6 +222,19 @@ public final class Spotify {
     }
 
     // ------------------------------------------------------------ apufunktiot
+
+    private static void openBrowser(String url) {
+        try {
+            String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+            ProcessBuilder pb;
+            if (os.contains("win")) pb = new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url);
+            else if (os.contains("mac")) pb = new ProcessBuilder("open", url);
+            else pb = new ProcessBuilder("xdg-open", url);
+            pb.start();
+        } catch (Exception e) {
+            status = "Avaa linkki käsin (se on leikepöydällä): " + e.getMessage();
+        }
+    }
 
     private static String b64(byte[] b) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(b);

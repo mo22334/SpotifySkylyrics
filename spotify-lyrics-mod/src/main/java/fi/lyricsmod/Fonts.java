@@ -36,13 +36,13 @@ public final class Fonts {
     public static List<F> list() {
         if (cache == null) {
             List<F> out = new ArrayList<>();
-            for (String[] b : BUILTIN) out.add(new F(b[0], new Identifier(b[1])));
+            for (String[] b : BUILTIN) out.add(new F(b[0], Identifier.of(b[1])));
             ResourceManager rm = MinecraftClient.getInstance().getResourceManager();
             for (String[] f : FILES) {
-                Identifier json = new Identifier("lyricsmod", "font/" + f[0] + ".json");
-                Identifier ttf = new Identifier("lyricsmod", "font/" + f[0] + ".ttf");
+                Identifier json = Identifier.of("lyricsmod", "font/" + f[0] + ".json");
+                Identifier ttf = Identifier.of("lyricsmod", "font/" + f[0] + ".ttf");
                 if (rm.getResource(json).isPresent() && rm.getResource(ttf).isPresent()) {
-                    out.add(new F(f[1], new Identifier("lyricsmod", f[0])));
+                    out.add(new F(f[1], Identifier.of("lyricsmod", f[0])));
                 }
             }
             cache = out;
